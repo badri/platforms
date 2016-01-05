@@ -1,4 +1,4 @@
-# Copyright 2015 basebuilder authors. All rights reserved.
+# Copyright 2015 tsuru authors. All rights reserved.
 # Use of this source code is governed by a BSD-style
 # license that can be found in the LICENSE file.
 
@@ -29,7 +29,7 @@ def parse_env(configuration):
 
 
 def parse_apprc():
-    path = "/home/application/apprc"
+    path = "/tmp/app_envs"
     environments = {}
     if os.path.exists(path):
         with open(path) as file:

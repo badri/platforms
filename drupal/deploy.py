@@ -61,7 +61,11 @@ class Manager(object):
         self.install_composer()        
 
     def install_composer(self):
-        composer_phar = os.path.join(self.application.get('directory'), 'composer.phar')
+        working_dir = self.application.get('directory')
+        docroot = os.path.join(working_dir, 'docroot')
+        if os.path.isdir(docroot):
+            working_dir = docroot
+        composer_phar = os.path.join(working_dir, 'composer.phar')
         if not os.path.isfile('/usr/local/bin/composer'):
             print('Composer is not found, downloading it')
 
@@ -76,9 +80,9 @@ class Manager(object):
             if os.system(mv_cmd) != 0:
                 raise InstallationException('Unable to mv composer.phar')
 
-        if os.path.isfile(os.path.join(self.application.get('directory'), 'composer.json')):
+        if os.path.isfile(os.path.join(working_dir, 'composer.json')):
             print('Installing composer dependencies')
-            if os.system('cd %s && composer install' % (self.application.get('directory'))) != 0:
+            if os.system('cd %s && composer install' % (working_dir)) != 0:
                 raise InstallationException('Unable to install composer dependencies')
 
         drupal_config =  self.configuration.get('drupal')
@@ -104,8 +108,16 @@ class Manager(object):
         extra_opts = drupal_config.get('extra-opts')
         admin_password = drupal_config.get('admin-password', 'admin')
 
-        os.system('chmod a+w /home/ubuntu/.drush')
+        db_dump_url = drupal_config.get('db-dump-url', '')
+        file_dump_url = drupal_config.get('file-dump-url', '')
+
+
+        os.system('chmod -R a+w /home/ubuntu/.drush')
         working_dir = self.application.get('directory')
+        docroot = os.path.join(working_dir, 'docroot')
+        if os.path.isdir(docroot):
+            working_dir = docroot
+            print('docroot is working dir')
 
         is_installed = "drush status --root={app_dir} | grep -i 'drupal bootstrap' | grep -i -q 'successful'".format(app_dir=working_dir)
         env = {
@@ -122,7 +134,7 @@ class Manager(object):
         drush_si = "/usr/bin/env PHP_OPTIONS=\"-d sendmail_path=`which true`\" drush site-install {d[site_profile]} --root={d[working_dir]} --site-name=\"{d[site_name]}\" --account-pass=\"{d[admin_password]}\" --db-url=mysql://{d[mysql_user]}:{d[mysql_password]}@{d[mysql_host]}:{d[mysql_port]}/{d[mysql_db_name]} {d[extra_opts]} --yes".format(d=data)
 
         # create shared files dir always.
-        shared_path = '/home/application/current/sites/default/files'
+        shared_path = os.path.join(working_dir, 'sites', 'default', 'files')
         shared_files = 'ln  -s /shared %s' % shared_path
         print(shared_files)
         if os.system(shared_files) != 0:
@@ -130,11 +142,25 @@ class Manager(object):
 
         print(is_installed)
         if os.system(is_installed) != 0:
-            print('Drupal is not installed. Installing Drupal...')
-            # install Drupal
-            print(drush_si)
-            if os.system(drush_si) != 0:
-                raise InstallationException('Unable to do drush site-install, %s' % (drush_si))
+            if db_dump_url:
+                print('Drupal is not installed, but found a DB dump url %s' % (db_dump_url))
+                wget_db = 'wget "%s" -q -O /tmp/db-dump.sql.gz' % (db_dump_url)
+                if os.system(wget_db) != 0:
+                    raise InstallationException('Unable download DB dump from %s.' % (db_dump_url))
+                decompress_db = 'gzip -d /tmp/db-dump.sql.gz'
+                if os.system(decompress_db) != 0:
+                    raise InstallationException('Unable to decompress DB dump.')
+                drush_import = 'drush sql-cli --root=%s < /tmp/db-dump.sql' % (working_dir)
+                print drush_import
+                if os.system(drush_import) != 0:
+                    raise InstallationException('Unable to import DB using drush.')
+                print('Successfully installed using DB dump url %s' % (db_dump_url))
+            else:
+                print('Drupal is not installed. Installing Drupal...')
+                # install Drupal
+                print(drush_si)
+                if os.system(drush_si) != 0:
+                    raise InstallationException('Unable to do drush site-install, %s' % (drush_si))
 
             # change permissions of files dir
             file_permissions = 'sudo chmod -R a+w %s' % shared_path
