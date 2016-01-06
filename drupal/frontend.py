@@ -105,7 +105,7 @@ class Apache(Frontend):
         return self.get_default_vhost_filepath()
 
     def get_default_vhost_filepath(self):
-        return os.path.join(self.application.get('source_directory'), 'php', 'frontend', 'apache', 'vhost.conf')
+        return os.path.join(self.application.get('source_directory'), 'drupal', 'frontend', 'apache', 'vhost.conf')
 
     def get_startup_cmd(self):
         return '/usr/sbin/apache2 -d /etc/apache2 -k start -DNO_DETACH'
@@ -113,7 +113,7 @@ class Apache(Frontend):
 
 class ApacheModPHP(Apache):
     def get_default_vhost_filepath(self):
-        return os.path.join(self.application.get('source_directory'), 'php', 'frontend', 'apache-mod-php', 'vhost.conf')
+        return os.path.join(self.application.get('source_directory'), 'drupal', 'frontend', 'apache-mod-php', 'vhost.conf')
 
     def get_packages(self):
         return ['apache2', 'php5']
@@ -129,7 +129,7 @@ class Nginx(Frontend):
 
     def configure(self, interpretor=None):
         # Copy nginx configuration
-        nginx_config_file = os.path.join(self.application.get('source_directory'), 'php', 'frontend', 'nginx', 'nginx.conf')
+        nginx_config_file = os.path.join(self.application.get('source_directory'), 'drupal', 'frontend', 'nginx', 'nginx.conf')
         shutil.copyfile(nginx_config_file, '/etc/nginx/nginx.conf')
 
         # Copy vhost configuration
@@ -156,7 +156,7 @@ class Nginx(Frontend):
         if 'vhost_file' in self.configuration:
             return os.path.join(self.application.get('directory'), self.configuration.get('vhost_file'))
 
-        return os.path.join(self.application.get('source_directory'), 'php', 'frontend', 'nginx', 'vhost.conf')
+        return os.path.join(self.application.get('source_directory'), 'drupal', 'frontend', 'nginx', 'vhost.conf')
 
     def get_startup_cmd(self):
         return '/usr/sbin/nginx'
