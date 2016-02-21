@@ -6,6 +6,7 @@ FROM    tsuru/base-platform
 RUN     echo 'deb http://archive.ubuntu.com/ubuntu/ vivid main restricted universe multiverse' >> /etc/apt/sources.list
 RUN     echo 'deb http://archive.ubuntu.com/ubuntu/ vivid-security main restricted universe multiverse' >> /etc/apt/sources.list
 RUN     echo 'APT::Default-Release "trusty";' >> /etc/apt/apt.conf.d/01ubuntu
+RUN     apt-get update
 
 # shared dir for files/ folder
 
