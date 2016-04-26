@@ -3,6 +3,6 @@
 # license that can be found in the LICENSE file.
 
 FROM	tsuru/base-platform
-ADD	. /var/lib/tsuru/ruby
-RUN	cp /var/lib/tsuru/ruby/deploy /var/lib/tsuru
-RUN	/var/lib/tsuru/ruby/install
+ADD	. /var/lib/tsuru/pypy
+RUN	cp /var/lib/tsuru/pypy/deploy /var/lib/tsuru
+RUN	/var/lib/tsuru/pypy/install
