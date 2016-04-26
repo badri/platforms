@@ -40,8 +40,13 @@ class Manager(object):
             packages += self.interpretor.get_packages()
 
         print('Installing system packages...')
-        if os.system("apt-get install -y --force-yes %s" % (' '.join(packages))) != 0:
-            raise InstallationException('An error appeared while installing needed packages')
+        try:
+            if os.system("apt-get install -y --force-yes %s" % (' '.join(packages))) != 0:
+                raise InstallationException('An error appeared while installing needed packages')
+        except InstallationException:
+            os.system("apt-get update")
+            if os.system("apt-get install -y --force-yes %s" % (' '.join(packages))) != 0:
+                raise InstallationException('An error appeared while installing needed packages')
 
         # Calling post-install hooks
         self.frontend.post_install()
