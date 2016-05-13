@@ -94,7 +94,7 @@ class Manager(object):
 
         drush_version = drupal_config.get('drush', 7)
         if drush_version == 8:
-            if os.system('composer global require drush/drush:dev-master') != 0:
+            if os.system('composer global require drush/drush:~8') != 0:
                 raise InstallationException('Unable to install drush-dev')
 
         if drush_version == 7:
