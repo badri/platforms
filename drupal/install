@@ -3,8 +3,9 @@
 apt-get update
 apt-get install python python-yaml -y --force-yes
 apt-get install wget -y --force-yes
-apt-get install mysql-client -y
-apt-get install php5-gd -y
-apt-get install php5-curl -y
-apt-get install libssh2-php -y
-apt-get install php5-mysql -y
+apt-get install mysql-client -y --force-yes
+apt-get install php5-gd -y --force-yes
+apt-get install php5-curl -y --force-yes
+apt-get install libssh2-php -y --force-yes
+apt-get install php5-mysql -y --force-yes
+
