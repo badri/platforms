@@ -157,15 +157,15 @@ class Manager(object):
                     raise InstallationException('Unable to decompress DB dump.')
                 drush_import = 'drush sql-cli --root=%s < /tmp/db-dump.sql' % (working_dir)
                 print drush_import
-                # if os.system(drush_import) != 0:
-                #     raise InstallationException('Unable to import DB using drush.')
+                if os.system(drush_import) != 0:
+                    raise InstallationException('Unable to import DB using drush.')
                 print('Successfully installed using DB dump url %s' % (db_dump_url))
             else:
                 print('Drupal is not installed. Installing Drupal...')
                 # install Drupal
                 print(drush_si)
-                #if os.system(drush_si) != 0:
-                #    raise InstallationException('Unable to do drush site-install, %s' % (drush_si))
+                if os.system(drush_si) != 0:
+                   raise InstallationException('Unable to do drush site-install, %s' % (drush_si))
 
             # change permissions of files dir
             file_permissions = 'sudo chmod -R a+w %s' % shared_path
