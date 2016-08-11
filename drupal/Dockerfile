@@ -15,4 +15,6 @@ RUN     chmod a+w /shared
 
 ADD	. /var/lib/tsuru/drupal
 RUN	cp /var/lib/tsuru/drupal/deploy /var/lib/tsuru
+RUN	chmod a+x /var/lib/tsuru/drupal/install
+RUN	chmod a+x /var/lib/tsuru/deploy
 RUN	/var/lib/tsuru/drupal/install
