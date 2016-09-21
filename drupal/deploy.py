@@ -164,16 +164,13 @@ class Manager(object):
                     raise InstallationException('Unable to import DB using drush.')
                 print('Successfully installed using DB dump url %s' % (db_dump_url))
             else:
-                if skip_site_install:
-                    print('Drupal is not installed. Installing Drupal...')
-                    # install Drupal
-                    print(drush_si)
-                    o = open('/tmp/drush-error', 'w')
-                    if subprocess.call(shlex.split(drush_si), stderr=o)  != 0:
-                        print(open('/tmp/drush-error', 'r').read())
-                        raise InstallationException('Unable to do drush site-install, %s' % (drush_si))
-                else:
-                    print('Skipping drush site-install command %s' % (drush_si))
+                print('Drupal is not installed. Installing Drupal...')
+                # install Drupal
+                print(drush_si)
+                o = open('/tmp/drush-error', 'w')
+                if subprocess.call(shlex.split(drush_si), stderr=o)  != 0:
+                    print(open('/tmp/drush-error', 'r').read())
+                    print('Unable to do drush site-install, %s' % (drush_si))
             # change permissions of files dir
             file_permissions = 'sudo chmod -R a+w %s' % shared_path
             print(file_permissions)
