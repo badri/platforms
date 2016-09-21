@@ -164,8 +164,8 @@ class Manager(object):
                 print('Drupal is not installed. Installing Drupal...')
                 # install Drupal
                 print(drush_si)
-                #if os.system(drush_si) != 0:
-                #    raise InstallationException('Unable to do drush site-install, %s' % (drush_si))
+                if os.system(drush_si) != 0:
+                    raise InstallationException('Unable to do drush site-install, %s' % (drush_si))
 
             # change permissions of files dir
             file_permissions = 'sudo chmod -R a+w %s' % shared_path
