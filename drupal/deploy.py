@@ -169,7 +169,7 @@ class Manager(object):
                     # install Drupal
                     print(drush_si)
                     o = open('/tmp/drush-error', 'w')
-                    if subprocess.call(shlex.split(drush_si), stderr=o))  != 0:
+                    if subprocess.call(shlex.split(drush_si), stderr=o)  != 0:
                         print(open('/tmp/drush-error', 'r').read())
                         raise InstallationException('Unable to do drush site-install, %s' % (drush_si))
                 else:
