@@ -5,6 +5,8 @@
 import os
 import yaml
 import sys
+import shlex, subprocess
+
 from utils import parse_env
 
 from interpretor import interpretors
@@ -111,6 +113,7 @@ class Manager(object):
 
         profile = drupal_config.get('profile', 'standard')
         extra_opts = drupal_config.get('extra-opts')
+        skip_site_install = drupal_config.get('skip-site-install', False)
         admin_password = drupal_config.get('admin-password', 'admin')
 
         db_dump_url = drupal_config.get('db-dump-url', '')
@@ -161,11 +164,16 @@ class Manager(object):
                     raise InstallationException('Unable to import DB using drush.')
                 print('Successfully installed using DB dump url %s' % (db_dump_url))
             else:
-                print('Drupal is not installed. Installing Drupal...')
-                # install Drupal
-                print(drush_si)
-                if os.system(drush_si) != 0:
-                    raise InstallationException('Unable to do drush site-install, %s' % (drush_si))
+                if skip_site_install:
+                    print('Drupal is not installed. Installing Drupal...')
+                    # install Drupal
+                    print(drush_si)
+                    o = open('/tmp/drush-error', 'w')
+                    if subprocess.call(shlex.split(drush_si), stderr=o))  != 0:
+                        print(open('/tmp/drush-error', 'r').read())
+                        raise InstallationException('Unable to do drush site-install, %s' % (drush_si))
+                else:
+                    print('Skipping drush site-install command %s' % (drush_si))
             # change permissions of files dir
             file_permissions = 'sudo chmod -R a+w %s' % shared_path
             print(file_permissions)
