@@ -3,7 +3,7 @@
 # license that can be found in the LICENSE file.
 
 FROM    tsuru/base-platform
-RUN	echo 'deb http://ppa.launchpad.net/ondrej/php5-5.6/ubuntu trusty main' >> /etc/apt/sources.list
+RUN	echo 'deb http://ppa.launchpad.net/ondrej/php/ubuntu trusty main' >> /etc/apt/sources.list
 RUN     apt-get update
 
 # shared dir for files/ folder
