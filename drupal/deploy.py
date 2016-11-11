@@ -95,6 +95,8 @@ class Manager(object):
         drupal_config =  self.configuration.get('drupal')
 
         drush_version = drupal_config.get('drush', 7)
+        if not drupal_config:
+            drush_version = 8
         if drush_version == 8:
             if os.system('composer global require drush/drush:~8') != 0:
                 raise InstallationException('Unable to install drush-dev')
@@ -115,9 +117,15 @@ class Manager(object):
         extra_opts = drupal_config.get('extra-opts')
         skip_site_install = drupal_config.get('skip-site-install', False)
         admin_password = drupal_config.get('admin-password', 'admin')
-
         db_dump_url = drupal_config.get('db-dump-url', '')
         file_dump_url = drupal_config.get('file-dump-url', '')
+        if not drupal_config:
+            profile = 'standard'
+            extra_opts = ''
+            skip_site_install = False
+            admin_password = 'admin'
+            db_dump_url = ''
+            file_dump_url = ''
 
 
         os.system('chmod -R a+w /home/ubuntu/.drush')
