@@ -81,6 +81,88 @@ class Interpretor(object):
                 packages.append(extension.join(['', self.phpversion]))
         return packages
 
+
+class FPM56(object):
+    def __init__(self, configuration, application):
+        self.configuration = configuration
+        self.application = application
+        self.socket_address = None
+
+    def configure(self, frontend):
+        # If frontend supports unix sockets, use them by default
+        self.socket_address = 'unix:/var/run/php5.6-fpm.sock'
+        if not frontend.supports_unix_proxy():
+            self.socket_address = '127.0.0.1:9000'
+
+        # Clear pre-configured pools
+        map(os.unlink, [os.path.join('/etc/php/5.6/fpm/pool.d', f) for f in os.listdir('/etc/php/5.6/fpm/pool.d')])
+        templates_mapping = {
+            'pool.conf': '/etc/php/5.6/fpm/pool.d/tsuru.conf',
+            'php-fpm.conf': '/etc/php/5.6/fpm/php-fpm.conf'
+        }
+
+        for template, target in templates_mapping.iteritems():
+            shutil.copyfile(
+                os.path.join(self.application.get('source_directory'), 'php', 'interpretor', 'fpm5', template),
+                target
+            )
+
+        # Replace pool listen address
+        listen_address = self.socket_address
+        if listen_address[0:5] == 'unix:':
+            listen_address = listen_address[5:]
+
+        replace(templates_mapping['pool.conf'], '_FPM_POOL_LISTEN_', listen_address)
+
+        if 'ini_file' in self.configuration:
+            shutil.copyfile(
+                os.path.join(self.application.get('directory'), self.configuration.get('ini_file')),
+                '/etc/php/5.6/fpm/php.ini'
+            )
+
+        # Clean and touch some files
+        for file_path in ['/var/log/php5.6-fpm.log', '/etc/php/5.6/fpm/environment.conf']:
+            open(file_path, 'a').close()
+            os.system('chown %s %s' % (self.application.get('user'), file_path))
+
+        # Clean run directory
+        run_directory = '/var/run'
+        if not os.path.exists(run_directory):
+            os.makedirs(run_directory)
+
+        # Fix user rights
+        os.system('chown -R %s /etc/php/5.6/fpm /var/run' % self.application.get('user'))
+
+    def get_address(self):
+        return self.socket_address
+
+    def setup_environment(self):
+        target = '/etc/php/5.6/fpm/environment.conf'
+
+        with open(target, 'w') as f:
+            for (k, v) in self.application.get('env', {}).items():
+                if v:
+                    f.write('env[%s] = %s\n' % (k, v))
+
+    def get_startup_cmd(self):
+        return '/usr/sbin/php-fpm5.6 --fpm-config /etc/php/5.6/fpm/php-fpm.conf'
+
+    def get_packages_extensions(self):
+        packages = []
+        if 'extensions' in self.configuration:
+            for extension in self.configuration.get('extensions'):
+                packages.append(extension.join(['', self.phpversion]))
+        return packages
+
+    def get_packages(self):
+        packages = ['php5.6-cli', 'php5.6-common', 'php5.6-fpm']
+        return packages
+    
+    def post_install(self):
+        # Remove autostart
+        os.system('service php5.6-fpm stop')
+
+        
 class FPM54(Interpretor):
     def __init__(self, configuration, application):
         super(FPM54, self).__init__(configuration, application)
@@ -193,5 +275,6 @@ class HHVM(Interpretor):
 interpretors = {
     'fpm54': FPM54,
     'fpm55': FPM55,
+    'fpm56': FPM56,
     'hhvm': HHVM
 }

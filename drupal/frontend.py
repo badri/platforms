@@ -116,7 +116,7 @@ class ApacheModPHP(Apache):
         return os.path.join(self.application.get('source_directory'), 'drupal', 'frontend', 'apache-mod-php', 'vhost.conf')
 
     def get_packages(self):
-        return ['apache2', 'php5']
+        return ['apache2', 'libapache2-mod-php5.6']
 
 
 class Nginx(Frontend):
