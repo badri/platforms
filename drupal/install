@@ -1,14 +1,21 @@
 #!/bin/bash -el
 
-apt-get update
-apt-get install git -y --force-yes
-apt-get install python python-yaml -y --force-yes
-apt-get install wget -y --force-yes
-apt-get install mysql-client -y --force-yes
-apt-get install php5-gd -y --force-yes
-apt-get install php5-curl -y --force-yes
-apt-get install libssh2-php -y --force-yes
-apt-get install php5-mysql -y --force-yes
-apt-get install zip -y --force-yes
-apt-get install unzip -y --force-yes
-apt-get install php5.5-xml -y --force-yes
+SOURCE_DIR=/var/lib/tsuru
+
+source ${SOURCE_DIR}/base/rc/config
+
+apk update
+
+
+apk add python
+apk add --update python python-dev py-yaml \
+    pcre openssl-dev pcre-dev openrc \
+    libmcrypt-dev zlib-dev wget build-base
+
+apk add wget \
+    php5.6-fpm php5.6-json php5.6-zlib php5.6-xml php5.6-pdo php5.6-phar php5.6-openssl \
+    php5.6-pdo_mysql php5.6-mysqli \
+    php5.6-gd php5.6-iconv php5.6-mcrypt \
+    php5.6-mysql php5.6-curl php5.6-opcache php5.6-ctype php5.6-apcu \
+    php5.6-intl php5.6-bcmath php5.6-dom php5.6-xmlreader curl git \
+    mysql-client php5.6-pcntl php5.6-posix apk-cron

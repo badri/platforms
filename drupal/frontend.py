@@ -37,8 +37,8 @@ class Apache(Frontend):
         return False
 
     def post_install(self):
-        os.system('service apache2 stop')
-        os.system('update-rc.d apache2 remove')
+        os.system('rc-service apache2 stop')
+        os.system('rc-update del apache2')
 
     def configure(self, interpretor=None):
         # Set apache virtual host
@@ -116,7 +116,7 @@ class ApacheModPHP(Apache):
         return os.path.join(self.application.get('source_directory'), 'drupal', 'frontend', 'apache-mod-php', 'vhost.conf')
 
     def get_packages(self):
-        return ['apache2', 'php5']
+        return ['php5-apache2']
 
 
 class Nginx(Frontend):
@@ -124,8 +124,8 @@ class Nginx(Frontend):
         return ['nginx']
 
     def post_install(self):
-        os.system('service nginx stop')
-        os.system('update-rc.d nginx remove')
+        os.system('rc-service nginx stop')
+        os.system('rc-update del nginx')
 
     def configure(self, interpretor=None):
         # Copy nginx configuration
